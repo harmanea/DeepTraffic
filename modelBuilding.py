@@ -23,7 +23,7 @@ def build_model():
     model.add(keras.layers.Dropout(0.5))
     model.add(keras.layers.Dense(43, activation='softmax'))
 
-    model.compile(optimizer=tf.train.AdamOptimizer(),
+    model.compile(optimizer=tf.keras.optimizers.AdamOptimizer(),
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
