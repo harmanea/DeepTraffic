@@ -107,3 +107,6 @@ venv.bak/
 
 .idea/
 .project
+checkpoint
+my_checkpoint.data-00000-of-00001
+my_checkpoint.index
