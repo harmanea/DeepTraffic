@@ -17,7 +17,7 @@ def resizeImages(images, size):
 
 def preprocessImages(images):
     '''
-    Convert images to grayscale and scale their values between 1 and 2
+    Convert images to grayscale and scale their values between 0 and 1
     :param images: list of images to be processed
     :return: list of processed images
     '''
@@ -51,6 +51,13 @@ def unisonShuffle(a, b):
 
 # puts all necessary steps together
 def process(images, labels, shuffle=True):
+    '''
+    Resize, convert to grayscale, scale their values between 0 and 1, shuffle and convert to format ready to feed to a model
+    :param images: list of images to be processed
+    :param labels: list of labels corresponding to the images
+    :param shuffle: flag for shuffling lists, True by default
+    :return: processed lists
+    '''
     images = resizeImages(images, (32, 32))
     images = preprocessImages(images)
     if shuffle:
