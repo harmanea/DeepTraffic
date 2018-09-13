@@ -107,3 +107,4 @@ venv.bak/
 
 .idea/
 .project
+/label_image.py
