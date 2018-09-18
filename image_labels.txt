@@ -17,7 +17,8 @@ no vehicles permitted
 no heavy vehicles permitted
 do not enter
 danger
-left curveright curve
+left curve
+right curve
 double curves
 bumpy road
 slippery road
