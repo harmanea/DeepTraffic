@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">Deep Traffic</string>
+    <string-array name="models">
+        <item>Convolution</item>
+        <item>Simple</item>
+        <item>MobileNetV2</item>
+    </string-array>
+    <string name="info_text"><![CDATA[
+    <h1>About DeepTraffic</h1>
+    <p>This app is a part of a school project. The project\'s goal is to get familiar with machine learning, Tensorflow and Android.
+    In the first phase of the project several neural networks were trained to recognize traffic signs. This app leverages these models
+    to classify photographs.</p>
+    <h2>How to use</h2>
+    <p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu maximus dolor. Fusce sagittis id nibh vel dapibus. Praesent dapibus iaculis sem dictum faucibus. Sed egestas posuere eros, sit amet porttitor lorem facilisis ut. Nunc accumsan erat nec orci tincidunt pharetra quis sed eros. Nulla sit amet ornare lorem. Morbi a pretium libero. Mauris nec interdum ipsum.
+</p>
+    <h3>Models</h3>
+    <li>&nbsp;<b> Convolution </b> - network with two convolution + pooling layers and two fully-connected layers</li>
+    <li>&nbsp;<b> Simple </b> - simple network with three fully-connected layers</li>
+    <li>&nbsp;<b> MobileNetV2 </b> - retrained Tensorflow Hub module, originally trained on ImageNet</li>
+    <h3>Recognized traffic signs</h3>
+    <ul>
+    <li>&nbsp; speed limit 20</li>
+    <li>&nbsp; speed limit 30</li>
+    <li>&nbsp; speed limit 50</li>
+    <li>&nbsp; speed limit 60</li>
+    <li>&nbsp; speed limit 70</li>
+    <li>&nbsp; speed limit 80</li>
+    <li>&nbsp; end of speed limit 80</li>
+    <li>&nbsp; speed limit 100</li>
+    <li>&nbsp; speed limit 120</li>
+    <li>&nbsp; no passing</li>
+    <li>&nbsp; no passing by heavy vehicles</li>
+    <li>&nbsp; priority road at next intersection</li>
+    <li>&nbsp; priority road</li>
+    <li>&nbsp; yield</li>
+    <li>&nbsp; stop</li>
+    <li>&nbsp; no vehicles permitted</li>
+    <li>&nbsp; no heavy vehicles permitted</li>
+    <li>&nbsp; do not enter</li>
+    <li>&nbsp; danger</li>
+    <li>&nbsp; left curve</li>
+    <li>&nbsp; right curve</li>
+    <li>&nbsp; double curves</li>
+    <li>&nbsp; bumpy road</li>
+    <li>&nbsp; slippery road</li>
+    <li>&nbsp; narrow road</li>
+    <li>&nbsp; road workers</li>
+    <li>&nbsp; semaphore</li>
+    <li>&nbsp; pedestrians</li>
+    <li>&nbsp; children</li>
+    <li>&nbsp; bicycles</li>
+    <li>&nbsp; snow or ice</li>
+    <li>&nbsp; wild animals</li>
+    <li>&nbsp; end of speed limit</li>
+    <li>&nbsp; right turn</li>
+    <li>&nbsp; left turn</li>
+    <li>&nbsp; go straight</li>
+    <li>&nbsp; go straight or right turn</li>
+    <li>&nbsp; go straight or left turn</li>
+    <li>&nbsp; keep right</li>
+    <li>&nbsp; keep left</li>
+    <li>&nbsp; roundabout</li>
+    <li>&nbsp; end of no passing</li>
+    <li>&nbsp; end of no passing by heavy vehicles</li>
+    </ul>
+    <br/><br/><br/><br/><br/>
+<div align="right"><i>Made by Adam Harmanec, 2018</i></div>]]>
+    </string>
+</resources>
