@@ -1,0 +1,43 @@
+speed limit 20
+speed limit 30
+speed limit 50
+speed limit 60
+speed limit 70
+speed limit 80
+end of speed limit 80
+speed limit 100
+speed limit 120
+no passing
+no passing by heavy vehicles
+priority road at next intersection
+priority road
+yield
+stop
+no vehicles permitted
+no heavy vehicles permitted
+do not enter
+danger
+left curve
+right curve
+double curves
+bumpy road
+slippery road
+narrow road
+road workers
+semaphore
+pedestrians
+children
+bicycles
+snow or ice
+wild animals
+end of speed limit
+right turn
+left turn
+go straight
+go straight or right turn
+go straight or left turn
+keep right
+keep left
+roundabout
+end of no passing
+end of no passing by heavy vehicles
