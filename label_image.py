@@ -16,6 +16,9 @@
 #    python3 label_image.py --help
 #        - for more information
 #
+#
+# By default this converts the image to grayscale so make sure to use the --grayscale=False flag if that's not what you want
+#
 # ==============================================================================
 
 
