@@ -25,7 +25,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 
-from imageProcessing import resizeImages, preprocess_images
+from imageProcessing import resize_images, preprocess_images
 
 
 def load_graph(model_file):
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     image = np.array(image)
 
     images = [image, ]
-    images = resizeImages(images, (input_width, input_height))
+    images = resize_images(images, (input_width, input_height))
     images = preprocess_images(images, grayscale)
     if grayscale == True:
         images = np.expand_dims(images, 4)
