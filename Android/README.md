@@ -1,6 +1,10 @@
 # DeepTraffic Android app
 This app is an assignment for a school Advanced Java course. In the first phase of the project several neural networks were trained to recognize traffic signs. This app leverages these models to classify photographs in the real life environment.
 
+<p align="center">
+  <img width="350" height="600" src="Screenshot.jpg">
+</p>
+
 ## Getting started
 This repository contains a complete Android Studio project. To try out this app, please clone this directory and open it with Android Studio. Gradle should resolve all the dependencies and build the project.
 
