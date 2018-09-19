@@ -27,7 +27,7 @@ public class InfoActivity extends AppCompatActivity {
         // Enable up button
         assert ab != null;
         ab.setDisplayHomeAsUpEnabled(true);
-        ab.setTitle("About");
+        ab.setTitle("Help");
 
         // Set text
         TextView textView = findViewById(R.id.infoText);
