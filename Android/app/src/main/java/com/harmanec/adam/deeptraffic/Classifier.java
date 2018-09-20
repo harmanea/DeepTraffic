@@ -87,6 +87,11 @@ public interface Classifier {
         }
     }
 
+    /**
+     * Get predictions for an image
+     * @param pixels image data
+     * @return list of predictions
+     */
     List<Recognition> recognizeImage(float[] pixels);
 
     void enableStatLogging(final boolean debug);
