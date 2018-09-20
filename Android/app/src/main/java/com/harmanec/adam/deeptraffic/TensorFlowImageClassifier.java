@@ -3,6 +3,11 @@
 
 package com.harmanec.adam.deeptraffic;
 
+import android.content.res.AssetManager;
+import android.util.Log;
+
+import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,12 +16,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Vector;
-
-import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
-
-import android.content.res.AssetManager;
-import android.support.v4.os.TraceCompat;
-import android.util.Log;
 
 /**
  * A classifier specialized to label images using TensorFlow.
@@ -35,7 +34,7 @@ public class TensorFlowImageClassifier implements Classifier {
     private long[] inputDims;
 
     // Pre-allocated buffers.
-    private Vector<String> labels = new Vector<String>();
+    private Vector<String> labels = new Vector<>();
     private float[] outputs;
     private String[] outputNames;
 
@@ -72,8 +71,7 @@ public class TensorFlowImageClassifier implements Classifier {
         // Read the label names into memory.
         String actualFilename = labelFilename.split("file:///android_asset/")[1];
         Log.i(TAG, "Reading labels from: " + actualFilename);
-        BufferedReader br = null;
-        br = new BufferedReader(new InputStreamReader(assetManager.open(actualFilename)));
+        BufferedReader br = new BufferedReader(new InputStreamReader(assetManager.open(actualFilename)));
         String line;
         while ((line = br.readLine()) != null) {
             c.labels.add(line);
@@ -112,7 +110,7 @@ public class TensorFlowImageClassifier implements Classifier {
 
         // Find the best classifications.
         PriorityQueue<Recognition> pq =
-                new PriorityQueue<Recognition>(
+                new PriorityQueue<>(
                         3,
                         new Comparator<Recognition>() {
                             @Override
@@ -128,7 +126,7 @@ public class TensorFlowImageClassifier implements Classifier {
                                 "" + i, labels.size() > i ? labels.get(i) : "unknown", outputs[i], null));
             }
         }
-        final ArrayList<Recognition> recognitions = new ArrayList<Recognition>();
+        final ArrayList<Recognition> recognitions = new ArrayList<>();
         int recognitionsSize = Math.min(pq.size(), MAX_RESULTS);
         for (int i = 0; i < recognitionsSize; ++i) {
             recognitions.add(pq.poll());
