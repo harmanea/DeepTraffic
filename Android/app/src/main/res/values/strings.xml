@@ -4,6 +4,7 @@
         <item>Convolution</item>
         <item>Simple</item>
         <item>MobileNetV2</item>
+        <item>Advanced</item>
     </string-array>
     <string name="info_text"><![CDATA[
 <h1>About DeepTraffic</h1>

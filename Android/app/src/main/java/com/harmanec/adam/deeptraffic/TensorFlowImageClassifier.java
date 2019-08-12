@@ -24,9 +24,8 @@ public class TensorFlowImageClassifier implements Classifier {
 
     private static final String TAG = "TFImageClassifier";
 
-    // Only return this many results with at least this confidence.
+    // Only return this many results.
     private static final int MAX_RESULTS = 3;
-    private static final float THRESHOLD = 0.1f;
 
     // Config values.
     private String inputName;
@@ -111,7 +110,7 @@ public class TensorFlowImageClassifier implements Classifier {
         // Find the best classifications.
         PriorityQueue<Recognition> pq =
                 new PriorityQueue<>(
-                        3,
+                        MAX_RESULTS,
                         new Comparator<Recognition>() {
                             @Override
                             public int compare(Recognition lhs, Recognition rhs) {
@@ -120,11 +119,10 @@ public class TensorFlowImageClassifier implements Classifier {
                             }
                         });
         for (int i = 0; i < outputs.length; ++i) {
-            if (outputs[i] > THRESHOLD) {
-                pq.add(
-                        new Recognition(
-                                "" + i, labels.size() > i ? labels.get(i) : "unknown", outputs[i], null));
-            }
+            pq.add(
+                    new Recognition(
+                            "" + i, labels.size() > i ? labels.get(i) : "unknown", outputs[i], null));
+
         }
         final ArrayList<Recognition> recognitions = new ArrayList<>();
         int recognitionsSize = Math.min(pq.size(), MAX_RESULTS);

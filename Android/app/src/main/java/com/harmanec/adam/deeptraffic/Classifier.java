@@ -76,11 +76,11 @@ public interface Classifier {
             }
 
             if (confidence != null) {
-                resultString += String.format("(%.1f%%) ", confidence * 100.0f);
+                resultString += String.format("(%.1f%%) ", confidence * 100.0f) + " ";
             }
 
             if (location != null) {
-                resultString += location + " ";
+                resultString += location;
             }
 
             return resultString.trim();

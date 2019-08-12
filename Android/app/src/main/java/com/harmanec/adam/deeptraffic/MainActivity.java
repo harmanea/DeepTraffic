@@ -1,11 +1,15 @@
 package com.harmanec.adam.deeptraffic;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -13,16 +17,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Spinner;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.soundcloud.android.crop.Crop;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+
+import static com.harmanec.adam.deeptraffic.DeepTraffic.REQUEST_CROP_IMAGE;
+import static com.harmanec.adam.deeptraffic.DeepTraffic.REQUEST_IMAGE_CAPTURE;
+import static com.harmanec.adam.deeptraffic.DeepTraffic.REQUEST_SELECT_FROM_GALLERY;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 /**
  * Starting activity with most of the apps functionality
@@ -30,35 +41,35 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private static final int REQUEST_CODE = 1;
-    private TextView textView;
     private ImageView imageView;
+    private ProgressBar[] progressBars;
+    private TextView[] textViews;
 
-    private static final int MODEL_COUNT = 3;
-    private static int model = 0;
+    private Executor executor = newSingleThreadExecutor();
 
-    private static final int[] INPUT_SIZES = new int[]{32, 32, 96};
-    private static final long[][] INPUT_DIMS = {{1, 32, 32, 1}, {1, 32, 32, 1}, {1, 96, 96, 3}}; // [batch_size, width, height, channels]
-    private static final String[] INPUT_NAMES = new String[] {"conv2d_input", "flatten_input", "module_apply_default/hub_input/Mul"};
-    private static final String[] OUTPUT_NAMES = new String[] {"dense_1/Softmax", "dense_2/Softmax", "final_result"};
+    private Uri captureImageDestination;
+    private Uri croppedImageDestination;
 
-    private static final String[] MODEL_FILES = new String[] {"file:///android_asset/traffic.pb", "file:///android_asset/traffic_simple.pb", "file:///android_asset/retrained_MobileNetV2.pb"};
-    private static final String[] LABEL_FILES = new String[] {"file:///android_asset/image_labels.txt", "file:///android_asset/image_labels.txt", "file:///android_asset/image_labels.txt"};
-
-    private String[] predictions = new String[MODEL_COUNT];
-
-    private Classifier[] classifiers = new Classifier[MODEL_COUNT];
-    private Executor executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = findViewById(R.id.textView);
         imageView = findViewById(R.id.result);
 
-        // Set textView height to be equivalent to it's width
+        progressBars = new ProgressBar[] {
+                findViewById(R.id.progressBar1),
+                findViewById(R.id.progressBar2),
+                findViewById(R.id.progressBar3)
+        };
+        textViews = new TextView[] {
+                findViewById(R.id.textView1),
+                findViewById(R.id.textView2),
+                findViewById(R.id.textView3)
+        };
+
+        // Set imageView height to be equivalent to it's width
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         int swidth = size.x;
@@ -68,35 +79,20 @@ public class MainActivity extends AppCompatActivity {
         params.height = swidth;
         imageView.setLayoutParams(params);
 
-        // Set up Button
-        Button button = findViewById(R.id.pictureButton);
-        button.setOnClickListener(new View.OnClickListener() {
+        // Set up Take a picture Button
+        findViewById(R.id.pictureButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent, REQUEST_CODE);
+                requestImageCapture();
             }
         });
 
-        // Set up Spinner
-        Spinner spinner = findViewById(R.id.modelSpinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.models, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                model = position;
-                if (predictions[model] != null) {
-                    textView.setText(predictions[model]);
-                }
-            }
+        //Set up Select from gallery Button
+        findViewById(R.id.galleryButton).setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            public void onClick(View v) {
+                requestSelectFromGallery();
             }
         });
 
@@ -104,7 +100,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Init models and files
         initTensorflow();
+        createTempFiles();
     }
 
     @Override
@@ -115,116 +113,120 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.info:
-                // Launch the InfoActivity when info button in the toolbar is pressed
-                startActivity(new Intent(this, InfoActivity.class));
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.info) {// Launch the InfoActivity when info button in the toolbar is pressed
+            startActivity(new Intent(this, InfoActivity.class));
+            return true;
         }
-    }
-
-    /**
-     * Load and set up tensorflow classifiers
-     */
-    private void initTensorflow() {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        for (int i = 0; i < MODEL_COUNT; i++) {
-                            classifiers[i] = TensorFlowImageClassifier.create(
-                                    getAssets(),
-                                    MODEL_FILES[i],
-                                    LABEL_FILES[i],
-                                    INPUT_NAMES[i],
-                                    OUTPUT_NAMES[i],
-                                    INPUT_DIMS[i]);
-                            Log.d(TAG, "Model from file " + MODEL_FILES[i] + " loaded successfully");
-                        }
-                        Log.d(TAG, "Tensorflow loaded successfully");
-                    } catch (final Exception e){
-                        throw new RuntimeException("Error initializing TensorFlow!", e);
-                    }
-                }
-            });
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    protected void onActivityResult(int requestedCode, int resultCode, Intent data) {
-        if (requestedCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            // Get the taken photo, crop it to square and display it
-            try {
-                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                bitmap = squareBitmap(bitmap);
-                imageView.setImageBitmap(bitmap);
+    protected void onActivityResult(int requestedCode, int resultCode, Intent intent) {
+        if (resultCode == RESULT_OK) {
+            switch (requestedCode) {
+                case REQUEST_IMAGE_CAPTURE:
+                    requestCrop(captureImageDestination);
+                    break;
+                case REQUEST_SELECT_FROM_GALLERY:
+                    Uri imageUri = intent.getData();
+                    requestCrop(imageUri);
+                    break;
+                case REQUEST_CROP_IMAGE:
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), croppedImageDestination);
+                        useBitmap(bitmap);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error obtaining bitmap from cropped image.", e);
+                    }
+                default:
+                    Log.d(TAG, "Unknown request code " + requestedCode);
 
-                // Get predictions on the photo and display the selected one
-                getPredictions(bitmap);
-                textView.setText(predictions[model]);
-            } catch (NullPointerException e) {
-                Log.d(TAG, "Extras.get('data') returned null");
             }
 
-        } else if (resultCode == Activity.RESULT_CANCELED) {
-            Log.d(TAG, "Camera Intent cancelled");
+        } else if (resultCode == RESULT_CANCELED) {
+            Log.d(TAG, "Action cancelled");
         }
-
     }
 
-    /**
-     * Get predictions on the provided Bitmap for all available classifiers and save them to array predictions
-     * @param bmp Bitmap to analyze
-     */
-    private void getPredictions(Bitmap bmp) {
-        for (int i = 0; i < MODEL_COUNT; i++) {
-            // scale bitmap and extract pixel values
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bmp, INPUT_SIZES[i], INPUT_SIZES[i], true);
-            int pixels[] = new int[INPUT_SIZES[i] * INPUT_SIZES[i]];
-            scaledBitmap.getPixels(pixels, 0, INPUT_SIZES[i], 0, 0, INPUT_SIZES[i], INPUT_SIZES[i]);
-
-            float image[];
-            if (INPUT_DIMS[i][3] == 1) { // if model takes only one grayscale channel
-                // convert to grayscale and normalize to float values between 0 and 1
-                image = new float[pixels.length];
-                for (int j = 0; j < pixels.length; j++) {
-                    // unpack rgb values
-                    int red = (pixels[j] >> 16) & 0xFF;
-                    int green = (pixels[j] >> 8) & 0xFF;
-                    int blue = pixels[j] & 0xFF;
-
-                    // grayscale YCbCr representation
-                    image[j] = (float) (0.299 * red + 0.587 * green + 0.114 * blue);
-
-                    // normalize
-                    image[j] = (float) (image[j] / 255.0);
-                }
-            } else {
-                // normalize to float values between 0 and 1
-                image = new float[pixels.length * 3];
-                for (int j = 0; j < pixels.length; j++) {
-                    // unpack rgb values
-                    int red = (pixels[j] >> 16) & 0xFF;
-                    int green = (pixels[j] >> 8) & 0xFF;
-                    int blue = pixels[j] & 0xFF;
-
-                    // normalize
-                    image[j * 3] = (float) (red / 255.0);
-                    image[j * 3 + 1] = (float) (green / 255.0);
-                    image[j * 3 + 2] = (float) (blue / 255.0);
+    private void initTensorflow() {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ClassifierHolder.init(getAssets());
+                    Log.d(TAG, "Tensorflow loaded successfully");
+                } catch (final Exception e) {
+                    throw new RuntimeException("Error initializing TensorFlow!", e);
                 }
             }
+        });
+    }
 
-            // feed preprocessed data to classifier
-            final List<Classifier.Recognition> results = classifiers[i].recognizeImage(image);
-            if (results.size() > 0) {
-                // save top result
-                predictions[i] = results.get(0).getTitle() + " (" + Math.round(results.get(0).getConfidence() * 100) + "%)";
-            } else {
-                predictions[i] = "Not recognized";
+    private void createTempFiles() {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    captureImageDestination = createImageFile("capturedImage");
+                    croppedImageDestination = createImageFile("croppedImage");
+                    Log.d(TAG, "Temp files created successfully");
+                } catch (final IOException e) {
+                    throw new RuntimeException("Error creating temp files!", e);
+                }
             }
+        });
+    }
+
+    private Uri createImageFile(String prefix) throws IOException {
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = prefix + "_" + timeStamp;
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+
+        return FileProvider.getUriForFile(MainActivity.this,
+                "com.harmanec.adam.deeptraffic.fileprovider",
+                image);
+    }
+
+    private void requestImageCapture() {
+        Intent captureImageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (captureImageIntent.resolveActivity(getPackageManager()) != null) {
+            captureImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, captureImageDestination);
+            startActivityForResult(captureImageIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    private void requestSelectFromGallery() {
+        Intent selectFromGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        selectFromGalleryIntent.setType("image/*");
+        if (selectFromGalleryIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(selectFromGalleryIntent, REQUEST_SELECT_FROM_GALLERY);
+        }
+    }
+
+    private void requestCrop(Uri srcUri) {
+        Crop.of(srcUri, croppedImageDestination)
+                .start(this, REQUEST_CROP_IMAGE);
+    }
+
+    private void useBitmap(Bitmap bitmap) {
+        imageView.setImageBitmap(squareBitmap(bitmap));
+
+        List<Classifier.Recognition> predictions = ClassifierHolder.getPredictions(bitmap);
+
+        for (int i = 0; i < 3; i++) {
+
+            final int confidence = Math.round(predictions.get(i).getConfidence() * 100);
+            progressBars[i].setProgress(confidence);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                progressBars[i].setTooltipText(confidence + "%");
+            }
+            textViews[i].setText(predictions.get(i).getTitle().trim());
         }
     }
 
@@ -234,10 +236,8 @@ public class MainActivity extends AppCompatActivity {
      * @return cropped Bitmap
      */
     private Bitmap squareBitmap(Bitmap src) {
-        boolean portrait = src.getHeight() > src.getWidth();
-        int size = portrait ? src.getWidth() : src.getHeight();
-        int x_offset = portrait ? 0 : ((src.getWidth() - src.getHeight()) / 2);
-        int y_offset = portrait ? ((src.getHeight() - src.getWidth()) / 2) : 0;
-        return Bitmap.createBitmap(src, x_offset, y_offset, size, size);
+        int size = Math.min(src.getWidth(), src.getHeight());
+        return Bitmap.createScaledBitmap(src, size, size, true);
     }
+
 }

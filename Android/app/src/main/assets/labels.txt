@@ -1,0 +1,93 @@
+křižovatka s vedlejší pozemní komunikací
+hlavní pozemní komunikace
+konec hlavní pozemní komunikace
+dej přednost v jízdě
+stůj, dej přednost v jízdě
+přednost protijedoucích vozidel
+přednost před protijedoucími vozidly
+zákaz vjezdu všech vozidel v obou směrech
+zákaz vjezdu všech vozidel
+zákaz vjezdu všech motorových vozidel s výjimkou motocyklů
+zákaz vjezdu nákladních automobilů
+zákaz vjezdu jízdních kol
+zákaz vjezdu potahových vozidel
+zákaz vjezdu všech motorových vozidel
+nejvyšší dovolená rychlost 5
+nejvyšší dovolená rychlost 10
+nejvyšší dovolená rychlost 15
+nejvyšší dovolená rychlost 20
+nejvyšší dovolená rychlost 25
+nejvyšší dovolená rychlost 30
+nejvyšší dovolená rychlost 40
+nejvyšší dovolená rychlost 50
+nejvyšší dovolená rychlost 60
+nejvyšší dovolená rychlost 70
+nejvyšší dovolená rychlost 80
+nejvyšší dovolená rychlost 90
+nejvyšší dovolená rychlost 100
+nejvyšší dovolená rychlost 120
+konec nejvyšší dovolené rychlosti
+zákaz předjíždění
+konec zákazu předjíždění
+zákaz předjíždění pro nákladní automobily
+konec zákazu předjíždění pro nákladní automobily
+zákaz zvukových výstražných znamení
+zákaz odbočování vpravo
+zákaz odbočování vlevo
+zákaz otáčení
+konec všech zákazů
+zákaz stání
+zákaz zastavení
+zákaz vstupu chodců
+zatáčka vpravo
+zatáčka vlevo
+dvojitá zatáčka, první vpravo
+dvojitá zatáčka, první vlevo
+křižovatka
+křižovatka s kruhovým objezdem
+zúžená vozovka, z obou stran
+zůžená vozovka, zleva
+zůžená vozovka, zprava
+nerovnost vozovky
+zpomalovací práh
+nebezpečí smyku
+provoz v obou směrech
+světelné signály
+přechod pro chodce
+chodci
+děti
+zvířata
+zvěř
+práce na silnici
+cyklisté
+jiné nebezpečí
+náledí
+nebezpečná krajnice
+železniční přejezd se závorami
+kruhový objezd
+přikázaný směr jízdy přímo
+přikázaný směr jízdy vpravo
+přikázaný směr jízdy vlevo
+přikázaný směr jízdy přímo a vpravo
+přikázaný směr jízdy přímo a vlevo
+přikázaný směr jízdy vpravo a vlevo
+přikázaný směr jízdy zde vpravo
+přikázaný směr jízdy zde vlevo
+přikázaný směr objíždění vpravo
+přikázaný směr objíždění vlevo
+přikázaný směr objíždění vpravo a vlevo
+stezka pro cyklisty
+stezka pro chodce a cyklisty společná
+jednosměrný provoz
+přechod pro chodce
+slepá pozemní komunikace
+návěst před slepou pozemní komunikaci vpravo
+návěst před slepou pozemní komunikace vlevo
+parkoviště
+dálnice
+konec dálnice
+silnice pro motorová vozidla
+konec slnice pro motorová vozidla
+obytná zóna
+konec obytné zóny
+zpomalovací práh
